@@ -1,0 +1,6 @@
+{
+  "name": "CareerPlus AI",
+  "description": "Never Miss an Opportunity - India's most trusted Government Jobs, Admit Cards, Results, notifications, and AI Career Guidance platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
