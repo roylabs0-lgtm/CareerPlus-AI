@@ -405,6 +405,7 @@ fun LoginScreen(viewModel: CareerPlusViewModel) {
     var expectedOtp by remember { mutableStateOf("") }
     var otpInput by remember { mutableStateOf("") }
     var otpError by remember { mutableStateOf("") }
+    var isNotificationVisible by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -620,6 +621,7 @@ fun LoginScreen(viewModel: CareerPlusViewModel) {
                         otpInput = ""
                         otpError = ""
                         showOtpScreen = true
+                        isNotificationVisible = true
                         
                         // Notify the candidate of the verification code
                         Toast.makeText(context, AppLocalizer.translate("Verification code sent! Code is:", viewModel.languageInput) + " " + randomCode, Toast.LENGTH_LONG).show()
@@ -739,6 +741,7 @@ fun LoginScreen(viewModel: CareerPlusViewModel) {
                             showOtpScreen = false
                             otpInput = ""
                             otpError = ""
+                            isNotificationVisible = false
                         },
                         modifier = Modifier.weight(1f)
                     ) {
@@ -753,6 +756,7 @@ fun LoginScreen(viewModel: CareerPlusViewModel) {
                             otpError = ""
                             val randomCode = (100000 + (Math.random() * 900000).toInt()).toString()
                             expectedOtp = randomCode
+                            isNotificationVisible = true
                             Toast.makeText(context, AppLocalizer.translate("Verification code resent! Code is:", viewModel.languageInput) + " " + randomCode, Toast.LENGTH_LONG).show()
                         },
                         modifier = Modifier.weight(1f)
@@ -763,6 +767,109 @@ fun LoginScreen(viewModel: CareerPlusViewModel) {
             }
 
             Spacer(modifier = Modifier.weight(1f))
+        }
+
+        // Floating Simulated SMS Message/Notification Banner
+        if (showOtpScreen && expectedOtp.isNotBlank() && isNotificationVisible) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+                    .padding(horizontal = 16.dp, vertical = 70.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateContentSize(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.inverseSurface,
+                        contentColor = MaterialTheme.colorScheme.inverseOnSurface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.5.dp, GoldenSun.copy(alpha = 0.8f))
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Sms,
+                                    contentDescription = "Simulated SMS",
+                                    tint = GoldenSun,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = t("Simulated SMS Message"),
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = GoldenSun
+                                )
+                                Text(
+                                    text = " • " + t("just now"),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.6f)
+                                )
+                            }
+                            IconButton(
+                                onClick = { isNotificationVisible = false },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Dismiss",
+                                    tint = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.5f),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        Text(
+                            text = if (isPhoneType) {
+                                "CareerPlus Gateway: " + t("Your 6-Digit security OTP is ") + expectedOtp + ". " + t("Do not share this mock validation code with anyone.")
+                            } else {
+                                "Email Server: " + t("Your security Token is ") + expectedOtp + ". " + t("Use it to verify your registration immediately.")
+                            },
+                            style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 18.sp),
+                            color = MaterialTheme.colorScheme.inverseOnSurface
+                        )
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    otpInput = expectedOtp
+                                    otpError = ""
+                                },
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                modifier = Modifier.height(32.dp),
+                                colors = ButtonDefaults.textButtonColors(contentColor = GoldenSun)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(t("Autofill Code"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
